@@ -1,0 +1,809 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="数据结构," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1" />
+
+
+
+
+
+
+<meta name="description" content="本文简述了一些数据结构的基本概念，以及解析了ArrayList的原码。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数据结构初探~">
+<meta property="og:url" content="http://yoursite.com/2016/09/26/数据结构（1）ArrayList原码/index.html">
+<meta property="og:site_name" content="孙宝的Android之旅">
+<meta property="og:description" content="本文简述了一些数据结构的基本概念，以及解析了ArrayList的原码。">
+<meta property="og:updated_time" content="2016-09-26T15:10:27.820Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="数据结构初探~">
+<meta name="twitter:description" content="本文简述了一些数据结构的基本概念，以及解析了ArrayList的原码。">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Pisces',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: 1234567,
+      author: 'Bolg God'
+    }
+  };
+</script>
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2016/09/26/数据结构（1）ArrayList原码/"/>
+
+  <title> 数据结构初探~ | 孙宝的Android之旅 </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/"  class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">孙宝的Android之旅</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle">你度过的每分每秒 , 便是你这一生的答案</p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                数据结构初探~
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-09-26T00:00:00+08:00" content="2016-09-26">
+              2016-09-26
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/数据结构/" itemprop="url" rel="index">
+                    <span itemprop="name">数据结构</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本文简述了一些数据结构的基本概念，以及解析了ArrayList的原码。<br><a id="more"></a></p>
+<h1 id="数据结构"><a href="#数据结构" class="headerlink" title="数据结构"></a>数据结构</h1><h2 id="数据结构的基本概念"><a href="#数据结构的基本概念" class="headerlink" title="数据结构的基本概念"></a>数据结构的基本概念</h2><ol>
+<li><p>数据<br>是信息的载体。它能够被计算机识别、存储和加工处理，是计算机程序加工的”原料”。<br>随着计算机应用领域的扩大，数据的范畴包括：<br>整数、实数、字符串、图像和声音等。</p>
+</li>
+<li><p>数据元素<br>数据元素是数据的基本单位。数据元素也称元素、结点、顶点、记录。<br>一个数据元素可以由若干个数据项（也可称为字段、域、属性）组成。<br>数据项是具有独立含义的最小标识单位。</p>
+</li>
+<li><p>数据结构<br>数据结构指的是数据之间的相互关系，即数据的组织形式。</p>
+</li>
+</ol>
+<h2 id="数据结构包含内容"><a href="#数据结构包含内容" class="headerlink" title="数据结构包含内容"></a>数据结构包含内容</h2><ol>
+<li><p>数据元素之间的逻辑关系，也称数据的<strong>逻辑结构</strong>（Logical Structure）；<br>数据的逻辑结构是从逻辑关系上描述数据，与数据的存储无关，是独立于计算机的。数据的逻辑结构可以看作是从具体问题抽象出来的数学模型。<br>分为<br>（1.集合结构 2.线性结构 3.树形结构 4.图形结构）</p>
+</li>
+<li><p>数据元素及其关系在计算机存储器内的表示，称为数据的<strong>存储结构</strong>（Storage Structure）；<br>数据的存储结构是逻辑结构用计算机语言的实现（亦称为映象），它依赖于计算机语言。对机器语言而言，存储结构是具体的。一般，只在高级语言的层次上讨论存储结构。<br>（1.顺序存储结构 2.链式存储结构）</p>
+</li>
+<li><p><strong>数据的运算</strong>，即对数据施加的操作。<br>数据的运算定义在数据的逻辑结构上，每种逻辑结构都有一个运算的集合。最常用的检索、插入、删除、更新、排序等运算实际上只是在抽象的数据上所施加的一系列抽象的操作。<br>所谓<strong>抽象的操作</strong>，是指我们只知道这些操作是”做什么”，而无须考虑”如何做”。只有确定了存储结构之后，才考虑如何具体实现这些运算。</p>
+</li>
+</ol>
+<h2 id="线性表（List）"><a href="#线性表（List）" class="headerlink" title="线性表（List）"></a>线性表（List）</h2><ol>
+<li><p>线性表元素之间的关系<br>线性表中数据元素之间的关系是一对一的关系，即除了第一个和最后一个数据元素之外，其它数据元素都是首尾相接的<br>（注意，这句话只适用大部分线性表，而不是全部。比如，循环链表逻辑层次上也是一种线性表（存储层次上属于链式存储），但是把最后一个数据元素的尾指针指向了首位结点）。<br>我们说“线性”和“非线性”，只在逻辑层次上讨论，而不考虑存储层次，所以双向链表和循环链表依旧是线性表。</p>
+</li>
+<li><p>线性表的结构<br>线性表是一个线性结构，它是一个含有n≥0个结点的有限序列，对于其中的结点，有且仅有一个开始结点没有前驱但有一个后继结点，有且仅有一个终端结点没有后继但有一个前驱结点，<br>其它的结点都有且仅有一个前驱和一个后继结点。一般地，一个线性表可以表示成一个线性序列：k1,k2,…,kn，其中k1是开始结点，kn是终端结点。<br>是一个数据元素的有序（次序）集</p>
+</li>
+<li><p>线性表的特征</p>
+<p>3.1 集合中必存在唯一的一个“第一元素”；<br>3.2 集合中必存在唯一的一个 “最后元素” ；<br>3.3 除最后一个元素之外，均有 唯一的后继(后件)；<br>3.4 除第一个元素之外，均有 唯一的前驱(前件)。<br>由n(n≥0)个数据元素(结点)a1,a2,…,an组成的有限序列。<br>数据元素的个数n定义为表的长度。<br>当n=0时称为空表。<br>常常将非空的线性表(n&gt;0)记作：<br>(a1，a2，…an)</p>
+</li>
+<li><p>结构特点</p>
+<p>4.1 均匀性：虽然不同数据表的数据元素可以是各种各样的，但对于同一线性表的各数据元素必定具有相同的数据类型和长度。<br>4.2 有序性：各数据元素在线性表中的位置只取决于它们的序号，数据元素之前的相对位置是线性的，即存在唯一的“第一个“和“最后一个”的数据元素，<br>除了第一个和最后一个外，其它元素前面均只有一个数据元素(直接前驱)和后面均只有一个数据元素（直接后继）。</p>
+</li>
+</ol>
+<h2 id="ArrayList原码"><a href="#ArrayList原码" class="headerlink" title="ArrayList原码"></a>ArrayList原码</h2><p>下面我们拿java中的ArrayList原码来进行学习线性表</p>
+<h3 id="ArrayList继承关系"><a href="#ArrayList继承关系" class="headerlink" title="ArrayList继承关系"></a>ArrayList继承关系</h3><pre><code>public class ArrayList&lt;E&gt; extends AbstractList&lt;E&gt; implements Cloneable, Serializable, RandomAccess
+</code></pre><blockquote>
+<p>由此可以看出<strong>ArrayList</strong>继承自 <strong>AbstractList</strong> ，List, RandomAccess, Cloneable, java.io.Serializable这些接口。</p>
+<ol>
+<li>AbstractList提供了List接口的默认实现（个别方法为抽象方法）。</li>
+</ol>
+</blockquote>
+<ol>
+<li><p>List接口定义了列表必须实现的方法。</p>
+</li>
+<li><p>实现了RandomAccess接口：提供了随机访问功能。RandmoAccess是java中用来被List实现，为List提供快速访问功能的。<br>在ArrayList中，我们即可以通过元素的序号快速获取元素对象；这就是快速随机访问。</p>
+</li>
+<li><p>实现了Cloneable接口：可以调用Object.clone方法返回该对象的浅拷贝。</p>
+</li>
+<li><p>实现了 java.io.Serializable 接口：可以启用其序列化功能，能通过序列化去传输。未实现此接口的类将无法使其任何状态序列化或反序列化。<br>序列化接口没有方法或字段，仅用于标识可序列化的语义。 </p>
+</li>
+</ol>
+<h3 id="ArrayList的实现"><a href="#ArrayList的实现" class="headerlink" title="ArrayList的实现"></a>ArrayList的实现</h3><ol>
+<li><p>私有属性</p>
+<p> private static final int MIN_CAPACITY_INCREMENT = 12;//默认存储空间<br> int size; //存储空间的大小<br> transient Object[] array; //数据源（用数组保存） Java的serialization提供了一种持久化对象实例的机制。当持久化对象时，可能有一个特殊的对象数据成员，<br> 我们不想用serialization机制来保存它。为了在一个特定对象的一个域上关闭serialization，可以在这个域前加上关键字transient。</p>
+</li>
+<li><p>构造函数</p>
+<p>  public ArrayList(int capacity) {</p>
+<pre><code>if (capacity &lt; 0) {
+    throw new IllegalArgumentException(&quot;capacity &lt; 0: &quot; + capacity);
+}
+//创建新数组
+array = (capacity == 0 ? EmptyArray.OBJECT : new Object[capacity]);
+</code></pre><p> }</p>
+<p>  public ArrayList() {</p>
+<pre><code>array = EmptyArray.OBJECT;
+</code></pre><p> }</p>
+<p> public ArrayList(Collection&lt;? extends E&gt; collection) {</p>
+<pre><code>if (collection == null) {
+    throw new NullPointerException(&quot;collection == null&quot;);
+}
+//
+Object[] a = collection.toArray();
+if (a.getClass() != Object[].class) {
+    Object[] newArray = new Object[a.length];
+    System.arraycopy(a, 0, newArray, 0, a.length);
+    a = newArray;
+}
+array = a;
+size = a.length;
+</code></pre><p> }</p>
+</li>
+<li><p>元素存储</p>
+<p> // 添加元素到数组的末端<br> @Override public boolean add(E object) {</p>
+<pre><code>Object[] a = array;
+int s = size;
+if (s == a.length) {
+    //新建一个数组 如果原数组的长度小于 6 则增加12 否则增加6
+    Object[] newArray = new Object[s +    
+            (s &lt; (MIN_CAPACITY_INCREMENT / 2) ?
+             MIN_CAPACITY_INCREMENT : s &gt;&gt; 1)]; 
+    //复制元素到新数组
+    System.arraycopy(a, 0, newArray, 0, s);
+    array = a = newArray;
+}
+//数组末端赋值
+a[s] = object;
+//数组长度加1
+size = s + 1;
+modCount++;
+return true;
+</code></pre><p> }</p>
+<p> //添加元素到指定位置<br>  @Override public void add(int index, E object) {</p>
+<pre><code>Object[] a = array;
+int s = size;
+if (index &gt; s || index &lt; 0) {
+    throwIndexOutOfBoundsException(index, s);
+}
+//将指定位置后的元素复制到新数组  赋值指定位置数组元素为 obj
+if (s &lt; a.length) {
+    System.arraycopy(a, index, a, index + 1, s - index);
+} else {
+    // assert s == a.length;
+    Object[] newArray = new Object[newCapacity(s)];
+    System.arraycopy(a, 0, newArray, 0, index);
+    System.arraycopy(a, index, newArray, index + 1, s - index);
+    array = a = newArray;
+}
+a[index] = object;
+size = s + 1;
+modCount++;
+</code></pre><p> }</p>
+<p> //从指定位置添加全部<br>  @Override<br> public boolean addAll(int index, Collection&lt;? extends E&gt; collection) {</p>
+<pre><code>int s = size;
+if (index &gt; s || index &lt; 0) {
+    throwIndexOutOfBoundsException(index, s);
+}
+//添加数组
+Object[] newPart = collection.toArray();
+//添加数组的长度
+int newPartSize = newPart.length;
+if (newPartSize == 0) {
+    return false;
+}
+Object[] a = array;
+//添加完成时数组的长度
+int newSize = s + newPartSize; // If add overflows, arraycopy will fail
+if (newSize &lt;= a.length) {
+        //将a中index后的元素 从第index位复制到 a中index+添加数组的长度位 
+     System.arraycopy(a, index, a, index + newPartSize, s - index);
+} else {    //newCapacity（）；改变存储大小
+    int newCapacity = newCapacity(newSize - 1);  // ~33% growth room
+    //创建新数组用以储存添加完成后的元素
+    Object[] newArray = new Object[newCapacity];
+
+    //相当于将a中元素前index 复制到 newArray 前index
+    System.arraycopy(a, 0, newArray, 0, index);
+
+    //将a中元素后index个复制到 newArray  index + 添加数组长度 
+    System.arraycopy(a, index, newArray, index + newPartSize, s-index);
+    array = a = newArray;
+}
+System.arraycopy(newPart, 0, a, index, newPartSize);
+size = newSize;
+modCount++;
+return true;
+</code></pre><p> }</p>
+</li>
+<li><p>元素读取<br> //返回数组的第index元素<br> @SuppressWarnings(“unchecked”) @Override public E get(int index) {</p>
+<pre><code>if (index &gt;= size) {
+    throwIndexOutOfBoundsException(index, size);
+}
+return (E) array[index];
+</code></pre><p> }</p>
+</li>
+</ol>
+<p>5.元素删除</p>
+<pre><code> @Override public E remove(int index) {
+    Object[] a = array;
+    int s = size;
+    if (index &gt;= s) {
+        throwIndexOutOfBoundsException(index, s);
+    }
+    @SuppressWarnings(&quot;unchecked&quot;) E result = (E) a[index];
+    System.arraycopy(a, index + 1, a, index, --s - index);
+    // 将当前元素置空 长度减1
+    a[s] = null;  // Prevent memory leak 
+    size = s;
+    modCount++;
+    return result;
+}
+</code></pre><p>7.调整数组容量</p>
+<pre><code>//调整容量大小
+public void ensureCapacity(int minimumCapacity) {
+    Object[] a = array;
+    if (a.length &lt; minimumCapacity) {
+        Object[] newArray = new Object[minimumCapacity];
+        System.arraycopy(a, 0, newArray, 0, size);
+        array = newArray;
+        modCount++;
+    }
+}
+//将容量调整为实际大小
+public void trimToSize() {
+    int s = size;
+    if (s == array.length) {
+        return;
+    }
+    if (s == 0) {
+        array = EmptyArray.OBJECT;
+    } else {
+        Object[] newArray = new Object[s];
+        System.arraycopy(array, 0, newArray, 0, s);
+        array = newArray;
+    }
+    modCount++;
+}
+</code></pre>
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/数据结构/" rel="tag">#数据结构</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/09/11/View的事件分发/" rel="next" title="View的事件分发">
+                <i class="fa fa-chevron-left"></i> View的事件分发
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/uploads/avtar.png"
+               alt="Kid SunBao" />
+          <p class="site-author-name" itemprop="name">Kid SunBao</p>
+          <p class="site-description motion-element" itemprop="description">SunBao's Blog</p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">3</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构"><span class="nav-number">1.</span> <span class="nav-text">数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据结构的基本概念"><span class="nav-number">1.1.</span> <span class="nav-text">数据结构的基本概念</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据结构包含内容"><span class="nav-number">1.2.</span> <span class="nav-text">数据结构包含内容</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线性表（List）"><span class="nav-number">1.3.</span> <span class="nav-text">线性表（List）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ArrayList原码"><span class="nav-number">1.4.</span> <span class="nav-text">ArrayList原码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#ArrayList继承关系"><span class="nav-number">1.4.1.</span> <span class="nav-text">ArrayList继承关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#ArrayList的实现"><span class="nav-number">1.4.2.</span> <span class="nav-text">ArrayList的实现</span></a></li></ol></li></ol></li></ol></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Kid SunBao</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Pisces
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.0.1"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
